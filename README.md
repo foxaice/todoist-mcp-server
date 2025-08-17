@@ -1,5 +1,7 @@
 # Todoist MCP Server
-[![smithery badge](https://smithery.ai/badge/@abhiz123/todoist-mcp-server)](https://smithery.ai/server/@abhiz123/todoist-mcp-server)
+This is a fork of [todoist-mcp-server](https://github.com/abhiz123/todoist-mcp-server) from [abhiz123](https://github.com/abhiz123). Thank you for your work!
+
+[![smithery badge](https://smithery.ai/badge/@foxaice/todoist-mcp-server)](https://smithery.ai/server/@foxaice/todoist-mcp-server)
 
 An MCP (Model Context Protocol) server implementation that integrates Claude with Todoist, enabling natural language task management. This server allows Claude to interact with your Todoist tasks using everyday language.
 
@@ -19,15 +21,15 @@ An MCP (Model Context Protocol) server implementation that integrates Claude wit
 
 ### Installing via Smithery
 
-To install Todoist MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@abhiz123/todoist-mcp-server):
+To install Todoist MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@foxaice/todoist-mcp-server):
 
 ```bash
-npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
+npx -y @smithery/cli install @foxaice/todoist-mcp-server --client claude
 ```
 
 ### Manual Installation
 ```bash
-npm install -g @abhiz123/todoist-mcp-server
+npm install -g @foxaice/todoist-mcp-server
 ```
 
 ## Tools
@@ -79,7 +81,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "todoist": {
       "command": "npx",
-      "args": ["-y", "@abhiz123/todoist-mcp-server"],
+      "args": ["-y", "@foxaice/todoist-mcp-server"],
       "env": {
         "TODOIST_API_TOKEN": "your_api_token_here"
       }
@@ -129,7 +131,7 @@ Add to your `claude_desktop_config.json`:
 ### Building from source
 ```bash
 # Clone the repository
-git clone https://github.com/abhiz123/todoist-mcp-server.git
+git clone https://github.com/foxaice/todoist-mcp-server.git
 
 # Navigate to directory
 cd todoist-mcp-server
@@ -148,4 +150,4 @@ Contributions are welcome! Feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Issues and Support
-If you encounter any issues or need support, please file an issue on the [GitHub repository](https://github.com/abhiz123/todoist-mcp-server/issues).
+If you encounter any issues or need support, please file an issue on the [GitHub repository](https://github.com/foxaice/todoist-mcp-server/issues).
