@@ -4,7 +4,6 @@ import {Server} from "@modelcontextprotocol/sdk/server/index.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 import {CallToolRequestSchema, ListToolsRequestSchema, Tool,} from "@modelcontextprotocol/sdk/types.js";
 import {TodoistApi} from "@doist/todoist-api-typescript";
-import {String} from "runtypes";
 
 // Define tools
 const CREATE_TASK_TOOL: Tool = {
@@ -291,8 +290,29 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 filteredTasks = filteredTasks.slice(0, args.limit);
             }
 
-            const taskList = filteredTasks.map(task =>
-                `- ${task.content}${task.description ? `\n  Description: ${task.description}` : ''}${task.due ? `\n  Due: ${task.due.string}` : ''}${task.priority ? `\n  Priority: ${task.priority}` : ''}`
+            const taskList = filteredTasks.map(t => {
+                    const content = [
+                        `id=${t.id}`,
+                        `projectId=${t.projectId}`,
+                        `sectionId=${t.sectionId ?? 'null'}`,
+                        `parentId=${t.parentId ?? 'null'}`,
+                        `content="${t.content}"`,
+                        `description="${t.description}"`,
+                        `isCompleted=${t.isCompleted}`,
+                        `labels=[${t.labels.join(', ')}]`,
+                        `priority=${t.priority}`,
+                        `order=${t.order}`,
+                        `commentCount=${t.commentCount}`,
+                        `createdAt=${t.createdAt}`,
+                        `url=${t.url}`,
+                        `creatorId=${t.creatorId}`,
+                        `assigneeId=${t.assigneeId ?? 'null'}`,
+                        `assignerId=${t.assignerId ?? 'null'}`,
+                        `due=${t.due}`,
+                        `duration=${t.duration}`
+                    ].join("|");
+                    return `- task:[${content}]`;
+                }
             ).join('\n\n');
 
             return {
