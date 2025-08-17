@@ -469,7 +469,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [
                 {
                     type: "text",
-                    text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                    text: `Error: ${error instanceof Error ? error.message : global.String(error)}`,
                 },
             ],
             isError: true,
