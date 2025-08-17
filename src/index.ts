@@ -2,12 +2,9 @@
 
 import {Server} from "@modelcontextprotocol/sdk/server/index.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-    CallToolRequestSchema,
-    ListToolsRequestSchema,
-    Tool,
-} from "@modelcontextprotocol/sdk/types.js";
+import {CallToolRequestSchema, ListToolsRequestSchema, Tool,} from "@modelcontextprotocol/sdk/types.js";
 import {TodoistApi} from "@doist/todoist-api-typescript";
+import {String} from "runtypes";
 
 // Define tools
 const CREATE_TASK_TOOL: Tool = {
@@ -128,6 +125,20 @@ const COMPLETE_TASK_TOOL: Tool = {
     }
 };
 
+const GET_PROJECTS_TOOL: Tool = {
+    name: "todoist_get_projects",
+    description: "List all active Todoist projects. Optionally filter only favorites.",
+    inputSchema: {
+        type: "object",
+        properties: {
+            favorite: {
+                type: "boolean",
+                description: "If true, return only favorite projects (optional)"
+            }
+        }
+    }
+};
+
 // Server implementation
 const server = new Server(
     {
@@ -215,9 +226,15 @@ function isCompleteTaskArgs(args: unknown): args is {
     );
 }
 
+function isGetProjectsArgs(args: unknown): args is {
+    favorite?: boolean;
+} {
+    return typeof args === "object" && args !== null;
+}
+
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: [CREATE_TASK_TOOL, GET_TASKS_TOOL, UPDATE_TASK_TOOL, DELETE_TASK_TOOL, COMPLETE_TASK_TOOL],
+    tools: [CREATE_TASK_TOOL, GET_TASKS_TOOL, UPDATE_TASK_TOOL, DELETE_TASK_TOOL, COMPLETE_TASK_TOOL, GET_PROJECTS_TOOL],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -391,6 +408,57 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 isError: false,
             };
         }
+
+        if (name === "todoist_get_projects") {
+            if (!isGetProjectsArgs(args)) {
+                throw new Error("Invalid arguments for todoist_get_projects");
+            }
+
+            const projects = await todoistClient.getProjects();
+
+            const filtered = (args as { favorite?: boolean }).favorite
+                ? projects.filter(p => (p as any).isFavorite === true)
+                : projects;
+
+            if (filtered.length === 0) {
+                return {
+                    content: [{type: "text", text: "No projects found"}],
+                    isError: false,
+                };
+            }
+
+            // Build parent name lookup
+            const allById = new Map(projects.map(p => [p.id, p]));
+
+            const text = filtered
+                .map(p => {
+                    const parentName =
+                        (p as any).parentId ? allById.get((p as any).parentId)?.name : undefined;
+                    const parentFields = parentName ?
+                        `  parentId: ${(p as any).parentId},\n  parent: ${parentName},\n` : ``;
+
+                    return `project:[\n`
+                        + `  id: ${p.id},\n`
+                        + `  name: ${p.name},\n`
+                        + parentFields
+                        + `  color: ${p.color},\n`
+                        + `  commentCount: ${p.commentCount},\n`
+                        + `  isShared: ${p.isShared},\n`
+                        + `  isFavorite: ${p.isFavorite},\n`
+                        + `  isInboxProject: ${p.isInboxProject},\n`
+                        + `  isTeamInbox: ${p.isTeamInbox},\n`
+                        + `  viewStyle: ${p.viewStyle},\n`
+                        + `  order: ${p.order},\n`
+                        + `  url: ${p.url}\n]`
+                })
+                .join("\n\n");
+
+            return {
+                content: [{type: "text", text}],
+                isError: false,
+            };
+        }
+
 
         return {
             content: [{type: "text", text: `Unknown tool: ${name}`}],
