@@ -304,11 +304,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         `order=${t.order}`,
                         `commentCount=${t.commentCount}`,
                         `createdAt=${t.createdAt}`,
-                        `url=${t.url}`,
+                        `url=${t.url} `,
                         `creatorId=${t.creatorId}`,
                         `assigneeId=${t.assigneeId ?? 'null'}`,
                         `assignerId=${t.assignerId ?? 'null'}`,
-                        `due=${t.due}`,
+                        `due=${t.due?.date},${t.due?.string}`,
                         `duration=${t.duration}`
                     ].join("|");
                     return `- task:[${content}]`;
